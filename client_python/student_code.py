@@ -1,8 +1,3 @@
-"""
-@author AchiyaZigi
-OOP - Ex4
-Very simple GUI example for python client to communicates with the server and "play the game!"
-"""
 from types import SimpleNamespace
 from client import Client
 import json
@@ -31,8 +26,8 @@ pygame.font.init()
 client = Client()
 client.start_connection(HOST, PORT)
 
-pokemons = client.get_pokemons()
-pokemons_obj = json.loads(pokemons, object_hook=lambda d: SimpleNamespace(**d))
+pokemonsJson = client.get_pokemons()
+pokemons_obj = json.loads(pokemonsJson, object_hook=lambda d: SimpleNamespace(**d))
 
 graph_json = client.get_graph()
 
@@ -70,40 +65,7 @@ def my_scale(data, x=False, y=False):
         return scale(data, 50, screen.get_height() - 50, min_y, max_y)
 
 
-radius = 15
-g = DiGraph()
-algo = GraphAlgo()
-algo.load_from_json(client.get_graph())
-pk = {}
-center = str(algo.centerPoint()[0])
-info = json.loads(client.get_info())
-numOfAgents = int(info.get("GameServer").get("agents"))
-client.add_agent("{\"id\":" + center + "}")
-cur_grade = 0
-old_grade = 0
-cur_agents = 1
-# this commnad starts the server - the game is running now
-print(client.start())
-print(client.start())
-print(client.start())
-print(client.start())
-print(client.start())
-print(client.start())
-print(client.start())
-print(client.start())
-print(client.start())
-print(client.start())
-client.start()
-client.start()
-client.start()
-print(client.is_running())
-"""
-The code below should be improved significantly:
-The GUI and the "algo" are mixed - refactoring using MVC design pattern is required.
-"""
-
-
-def get_edge(pok_x: float, pok_y: float) -> (float, float):
+def get_edge(pok_x: float, pok_y: float, t: int) -> (float, float):
     for e in graph.Edges:
         src = algo.get_Node_courdinates(e.src)
         dest = algo.get_Node_courdinates(e.dest)
@@ -116,31 +78,82 @@ def get_edge(pok_x: float, pok_y: float) -> (float, float):
         m = mone / mehane
         n = dst_y - (m * dst_x)
         res = Decimal(str(pok_y)) - m * Decimal(str(pok_x))
+        if e.src < e.dest:
+            flag = True
+        else:
+            flag = False
         if math.fabs(n - res) < 0.0000001:
-            return e.src, e.dest
+            if t > 0:
+                if flag:
+                    return e.src, e.dest
+                else:
+                    return e.dest, e.src
+            else:
+                if flag:
+                    return e.dest, e.src
+                else:
+                    return e.src, e.dest
 
 
-def find_far_pok(pokemons: dict) -> int:
-    ag = json.loads(client.get_agents()).get("Agents")
+def find_far_pok(pK: dict) -> int:
+    print(client.get_agents())
+    agents = json.loads(client.get_agents(),
+                        object_hook=lambda d: SimpleNamespace(**d)).Agents
+    agents = [agent.Agent for agent in agents]
     MaxSrc = -1
     MaxDist = -1
-    for i, po in pokemons.items():
-        ed = get_edge(pokemons.get(i)[0], pokemons.get(i)[1])
+    for i, po in pK.items():
+        ed = get_edge(pK.get(i)[0], pK.get(i)[1], pk.get(i)[2])
         tempDist = 0
-        for a in ag:
-            if int(a.get("dest")) != -1:
-                temp, tempList = algo.shortest_path(int(a.get("dest")), ed[0])
+        for k in range(0, len(agents)):
+            if int(agents[k].dest) != -1:
+                temp, tempList = algo.shortest_path(int(agents[k].dest), ed[0])
                 tempDist += temp
             else:
-                temp, tempList = algo.shortest_path(int(a.get("src")), ed[0])
+                temp, tempList = algo.shortest_path(int(agents[k].src), ed[0])
                 tempDist += temp
         if tempDist > MaxDist:
             MaxDist = tempDist
             MaxSrc = ed[0]
     return MaxSrc
 
+
+radius = 15
+g = DiGraph()
+algo = GraphAlgo()
+algo.load_from_json(client.get_graph())
+center = str(algo.centerPoint()[0])
+info = json.loads(client.get_info())
+numOfAgents = int(info.get("GameServer").get("agents"))
+client.add_agent("{\"id\":" + center + "}")
+pokemons = json.loads(client.get_pokemons(),
+                      object_hook=lambda d: SimpleNamespace(**d)).Pokemons
+pk = {}
+i = 0
+pokemons = [p.Pokemon for p in pokemons]
+for p in pokemons:
+    x, y, _ = p.pos.split(',')
+    pk[i] = (x, y, int(p.type))
+    i = i + 1
+
+if numOfAgents > 1:
+
+    for i in range(1, numOfAgents):
+        if len(pk) > 0:
+            if len(pk) == 1:
+                client.add_agent("{\"id\":" + str(get_edge(pk[0][0], pk[0][1], p.type)[0]) + "}")
+            else:
+                client.add_agent("{\"id\":" + str(find_far_pok(pk)) + "}")
+
+# this commnad starts the server - the game is running now
+client.start()
+
+"""
+The code below should be improved significantly:
+The GUI and the "algo" are mixed - refactoring using MVC design pattern is required.
+"""
+
 while client.is_running() == 'true':
-    cur_grade = int(info.get("GameServer").get("grade"))
     pokemons = json.loads(client.get_pokemons(),
                           object_hook=lambda d: SimpleNamespace(**d)).Pokemons
     pk = {}
@@ -148,18 +161,11 @@ while client.is_running() == 'true':
     pokemons = [p.Pokemon for p in pokemons]
     for p in pokemons:
         x, y, _ = p.pos.split(',')
-        pk[i] = (x, y)
+        pk[i] = (x, y, int(p.type))
         p.pos = SimpleNamespace(x=my_scale(
             float(x), x=True), y=my_scale(float(y), y=True))
         i = i + 1
-    if (cur_grade > old_grade and cur_agents < numOfAgents):
-        old_grade = cur_grade
-        cur_agents += 1
-        if len(pk) > 0:
-            if len(pk) == 1:
-                client.add_agent("{\"id\":" + str(get_edge(pk[0][0], pk[0][1])[0]) + "}")
-            else:
-                client.add_agent("{\"id\":" + str(find_far_pok(pk)) + "}")
+
     agents = json.loads(client.get_agents(),
                         object_hook=lambda d: SimpleNamespace(**d)).Agents
     agents = [agent.Agent for agent in agents]
@@ -230,7 +236,7 @@ while client.is_running() == 'true':
             next_node = agent.src
             i = 0
             for poke in pokemons:
-                ed = get_edge(pk[i][0], pk[i][1])
+                ed = get_edge(pk[i][0], pk[i][1], pk[i][2])
                 tempDist, tempList = algo.shortest_path(agent.src, int(ed[0]))
                 if tempDist == 0:
                     next_node = int(ed[1])
