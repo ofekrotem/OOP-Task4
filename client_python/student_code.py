@@ -1,4 +1,7 @@
+import subprocess
+import sys
 from types import SimpleNamespace
+
 from client import Client
 import json
 from pygame import gfxdraw
@@ -9,8 +12,11 @@ from GraphAlgo import GraphAlgo
 import math
 from decimal import Decimal
 import time
+from pygame_widgets import *
 
 # init pygame
+from client_python.ImageControler import ImageControler
+
 WIDTH, HEIGHT = 1080, 720
 
 # default port
@@ -18,16 +24,15 @@ PORT = 6666
 # server host (default localhost 127.0.0.1)
 HOST = '127.0.0.1'
 pygame.init()
-
 screen = display.set_mode((WIDTH, HEIGHT), depth=32, flags=RESIZABLE)
 clock = pygame.time.Clock()
-pygame.font.init()
-
 client = Client()
 client.start_connection(HOST, PORT)
-
+pygame.font.init()
 pokemonsJson = client.get_pokemons()
 pokemons_obj = json.loads(pokemonsJson, object_hook=lambda d: SimpleNamespace(**d))
+INACTIVE_COLOR = (0, 255, 0)
+ACTIVE_COLOR = (255, 0, 0)
 
 graph_json = client.get_graph()
 
@@ -95,8 +100,12 @@ def get_edge(pok_x: float, pok_y: float, t: int) -> (float, float):
                     return e.src, e.dest
 
 
+def calculateDistance(x1, y1, x2, y2):
+    dist = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+    return dist
+
+
 def find_far_pok(pK: dict) -> int:
-    print(client.get_agents())
     agents = json.loads(client.get_agents(),
                         object_hook=lambda d: SimpleNamespace(**d)).Agents
     agents = [agent.Agent for agent in agents]
@@ -118,6 +127,42 @@ def find_far_pok(pK: dict) -> int:
     return MaxSrc
 
 
+def draw_button(button, screen):
+    """Draw the button rect and the text surface."""
+    pygame.draw.rect(screen, button['color'], button['rect'])
+    screen.blit(button['text'], button['text rect'])
+
+
+def create_button(x, y, w, h, text, callback):
+    """A button is a dictionary that contains the relevant data.
+
+    Consists of a rect, text surface and text rect, color and a
+    callback function.
+    """
+    # The button is a dictionary consisting of the rect, text,
+    # text rect, color and the callback function.
+    text_surf = FONT.render(text, True, (255, 255, 255))
+    button_rect = pygame.Rect(x, y, w, h)
+    text_rect = text_surf.get_rect(center=button_rect.center)
+    button = {
+        'rect': button_rect,
+        'text': text_surf,
+        'text rect': text_rect,
+        'color': INACTIVE_COLOR,
+        'callback': callback,
+    }
+    return button
+
+
+def stop_Game():
+    client.stop()
+    pygame.quit()
+    exit(0)
+
+
+b = Rect(432, 7, 70, 40)
+button = create_button(b.x+530, b.y, 100, 40, 'Quit Game!', stop_Game)
+
 radius = 15
 g = DiGraph()
 algo = GraphAlgo()
@@ -137,7 +182,6 @@ for p in pokemons:
     i = i + 1
 
 if numOfAgents > 1:
-
     for i in range(1, numOfAgents):
         if len(pk) > 0:
             if len(pk) == 1:
@@ -152,7 +196,11 @@ client.start()
 The code below should be improved significantly:
 The GUI and the "algo" are mixed - refactoring using MVC design pattern is required.
 """
-
+sc = 0
+print((Decimal(client.time_to_end()) / 1000))
+pics = ImageControler(WIDTH, HEIGHT)
+bg = pics.background_images[0]
+buttons_collor = (184, 15, 10)
 while client.is_running() == 'true':
     pokemons = json.loads(client.get_pokemons(),
                           object_hook=lambda d: SimpleNamespace(**d)).Pokemons
@@ -175,14 +223,54 @@ while client.is_running() == 'true':
         a.pos = SimpleNamespace(x=my_scale(
             float(x), x=True), y=my_scale(float(y), y=True))
     # check events
-    for event in pygame.event.get():
+    events = pygame.event.get()
+    for event in events:
         if event.type == pygame.QUIT:
-            pygame.quit()
-            exit(0)
-
+            stop_Game()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            # 1 is the left mouse button, 2 is middle, 3 is right.
+            if event.button == 1:
+                # `event.pos` is the mouse position.
+                if button['rect'].collidepoint(event.pos):
+                    # Increment the number by calling the callback
+                    # function in the button list.
+                    button['callback']()
+        elif event.type == pygame.MOUSEMOTION:
+            # When the mouse gets moved, change the color of the
+            # buttons if they collide with the mouse.
+            if button['rect'].collidepoint(event.pos):
+                button['color'] = ACTIVE_COLOR
+            else:
+                button['color'] = INACTIVE_COLOR
     # refresh surface
     screen.fill(Color(0, 0, 0))
+    screen.blit(bg, (0, 0))
+    # time
+    timeleft = Decimal(client.time_to_end()) / 1000
+    timelabel = FONT.render(f"Time Left: {int(timeleft)}", True, buttons_collor)
+    rect = timelabel.get_rect(center=(70, 10))
+    screen.blit(timelabel, rect)
 
+    # score
+    info = json.loads(client.get_info())
+    score = info.get("GameServer")["grade"]
+    scorelabel = FONT.render(f"Score: {score}", True, buttons_collor)
+    rect = scorelabel.get_rect(center=(200, 10))
+    screen.blit(scorelabel, rect)
+
+    # moves
+    moves = info.get("GameServer")["moves"]
+    moveslabel = FONT.render(f"Moves: {moves}", True, buttons_collor)
+    rect = moveslabel.get_rect(center=(300, 10))
+    screen.blit(moveslabel, rect)
+
+    # # stop game button
+    # if 432 <= mouse[0] <= 432 + 140 and 7 <= mouse[1] <= 30:
+    #     pygame.draw.rect(screen, (255, 255, 255), [432, 7, 120, 30])
+    #     screen.blit(stop, (400 + 50, 10))
+    # else:
+    #     # superimposing the text onto our button
+    #     screen.blit(stop, (400 + 50, 10))
     # draw nodes
     for n in graph.Nodes:
         x = my_scale(n.pos.x, x=True)
@@ -211,19 +299,23 @@ while client.is_running() == 'true':
         dest_x = my_scale(dest.pos.x, x=True)
         dest_y = my_scale(dest.pos.y, y=True)
 
-        # draw the line
         pygame.draw.line(screen, Color(61, 72, 126),
                          (src_x, src_y), (dest_x, dest_y))
 
     # draw agents
+    i = 0
     for agent in agents:
-        pygame.draw.circle(screen, Color(122, 61, 23),
-                           (int(agent.pos.x), int(agent.pos.y)), 10)
+        screen.blit(pics.agentsImages[i], (int(agent.pos.x), int(agent.pos.y)))
+        i += 1
+
+    i = 0
     # draw pokemons (note: should differ (GUI wise) between the up and the down pokemons (currently they are marked in the same way).
     for p in pokemons:
-        pygame.draw.circle(screen, Color(0, 255, 255), (int(p.pos.x), int(p.pos.y)), 10)
+        screen.blit(pics.pokImages[i % len(pokemons)], (int(p.pos.x), int(p.pos.y)))
+        i += 1
 
     # update screen changes
+    draw_button(button, screen)
     display.update()
 
     # refresh rate
