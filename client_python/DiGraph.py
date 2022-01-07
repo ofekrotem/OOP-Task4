@@ -1,7 +1,7 @@
 import math
 import random
 
-from GraphInterface import GraphInterface
+from client_python.GraphInterface import GraphInterface
 
 
 class Node:

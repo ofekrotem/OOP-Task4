@@ -6,9 +6,9 @@ import random
 from types import SimpleNamespace
 from typing import List
 
-from DiGraph import Node, Edge, DiGraph
-from GraphAlgoInterface import GraphAlgoInterface
-from GraphInterface import GraphInterface
+from client_python.DiGraph import Node, Edge, DiGraph
+from client_python.GraphAlgoInterface import GraphAlgoInterface
+from client_python.GraphInterface import GraphInterface
 
 
 class GraphAlgo(GraphAlgoInterface):
