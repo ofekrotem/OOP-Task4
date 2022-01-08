@@ -35,6 +35,10 @@ def main():
     pics = ImageControler(WIDTH, HEIGHT)
     graph_json = client.get_graph()
 
+    # Start music
+    pygame.mixer.init()
+    pygame.mixer.music.load('./music/music.mp3')
+    pygame.mixer.music.play()
     FONT = pygame.font.SysFont('Arial', 20, bold=True)
     # load the json string into SimpleNamespace Object
 
@@ -141,13 +145,30 @@ def main():
         }
         return button
 
-    def stop_Game():
-        screen.fill(Color(0, 0, 0))
-        screen.blit(pics.gameOverPika, (screen.get_rect().center[0] - 250, screen.get_rect().center[1] - 200))
-        display.update()
-        time.sleep(2)
-        client.stop()
-        pygame.quit()
+    def stop_Game(flag: bool = False):
+        pygame.mixer.music.stop()
+        if flag:
+            pygame.mixer.music.load('./music/pinukim.mp3')
+            pygame.mixer.music.play()
+            screen.fill(Color(0, 0, 0))
+            screen.blit(pics.gameOverPika, (screen.get_rect().center[0] - 250, screen.get_rect().center[1] - 200))
+            display.update()
+            time.sleep(6)
+            client.stop()
+            pygame.quit()
+        else:
+            pygame.mixer.music.load('./music/wop.mp3')
+            pygame.mixer.music.play()
+            time.sleep(0.7)
+            pygame.mixer.music.load('./music/lohevanti.mp3')
+            pygame.mixer.music.play()
+            screen.fill(Color(0, 0, 0))
+            screen.blit(pics.gameOverPika, (screen.get_rect().center[0] - 250, screen.get_rect().center[1] - 200))
+            display.update()
+            time.sleep(2)
+            client.stop()
+            pygame.quit()
+
         exit(0)
 
     b = Rect(432, 7, 70, 40)
@@ -231,6 +252,10 @@ def main():
                     button['color'] = INACTIVE_COLOR
         # refresh surface
         screen.fill(Color(0, 0, 0))
+        WIDTH = screen.get_width()
+        HEIGHT = screen.get_height()
+        pics.rescaleBG(WIDTH,HEIGHT)
+        bg=pics.background_images[0]
         screen.blit(bg, (0, 0))
         # time
         timeleft = Decimal(client.time_to_end()) / 1000
@@ -332,7 +357,7 @@ def main():
         client.move()
         time.sleep(0.1)
     # game over:
-    stop_Game()
+    stop_Game(True)
 
 
 if __name__ == '__main__':

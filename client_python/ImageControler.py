@@ -12,8 +12,8 @@ class ImageControler:
         b0 = pygame.image.load(os.path.join('./pics_for_game', 'background.jpg'))
         b0 = pygame.transform.scale(b0, (WIDTH, HEIGHT))
         self.background_images[0] = b0
-        self.gameOverPika = pygame.image.load(os.path.join('./pics_for_game','GameOverPika.png'))
-        self.gameOverPika = pygame.transform.scale(self.gameOverPika,(WIDTH/2,HEIGHT/2))
+        self.gameOverPika = pygame.image.load(os.path.join('./pics_for_game', 'GameOverPika.png'))
+        self.gameOverPika = pygame.transform.scale(self.gameOverPika, (WIDTH / 2, HEIGHT / 2))
 
         pikacuIM = pygame.image.load(os.path.join('./pics_for_game', 'pikachu.jpg'))
         pikacuIM = pygame.transform.scale(pikacuIM, (50, 50))
@@ -70,3 +70,9 @@ class ImageControler:
         mistyIM = pygame.image.load(os.path.join('./pics_for_game', 'misty.jpg'))
         mistyIM = pygame.transform.scale(mistyIM, (40, 80))
         self.agentsImages[2] = mistyIM
+
+
+    def rescaleBG(self, w, h):
+        b0 = pygame.image.load(os.path.join('./pics_for_game', 'background.jpg'))
+        b0 = pygame.transform.scale(b0, (w, h))
+        self.background_images[0] = b0
