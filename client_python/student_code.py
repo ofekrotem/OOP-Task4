@@ -155,6 +155,7 @@ def main():
             display.update()
             time.sleep(6)
             client.stop()
+            client.stop_connection()
             pygame.quit()
         else:
             pygame.mixer.music.load('./music/wop.mp3')
@@ -167,6 +168,7 @@ def main():
             display.update()
             time.sleep(2)
             client.stop()
+            client.stop_connection()
             pygame.quit()
 
         exit(0)
