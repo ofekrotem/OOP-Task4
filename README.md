@@ -42,7 +42,7 @@ For more information about class and algorithms implementation please see [Wiki]
 ## Credits
 Background music - https://www.youtube.com/watch?v=iqvmCgNrcpw&t=96s    
 Music played on close in the middle of the game - Moshiko Hen        
-Music played on close when game is over - Alon Litai ז"ל
+Music played on close when game is over - Alon Litai    
 
 
 
