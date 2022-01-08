@@ -39,5 +39,10 @@ From these requests we recieve the graph(the map we are working on), our agents 
 ## Wiki
 For more information about class and algorithms implementation please see [Wiki](https://github.com/ofekrotem400/OOP-Task4/wiki).
 
+## Credits
+Background music - https://www.youtube.com/watch?v=iqvmCgNrcpw&t=96s    
+Music played on close in the middle of the game - Moshiko Hen        
+Music played on close when game is over - Alon Litai    
+
 
 
