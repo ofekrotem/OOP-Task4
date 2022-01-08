@@ -37,7 +37,7 @@ From these requests we recieve the graph(the map we are working on), our agents 
 5. Sit back and enjoy the game :)
 
 ## Wiki
-For more information about class and algorithms implementation please see [Wiki](https://www.python.org/downloads/).
+For more information about class and algorithms implementation please see [Wiki](https://github.com/ofekrotem400/OOP-Task4/wiki).
 
 
 
