@@ -16,7 +16,7 @@ from client_python.ImageControler import ImageControler
 
 
 def main():
-    WIDTH, HEIGHT = 1080, 720
+    WIDTH, HEIGHT = 1080, 500
 
     # default port
     PORT = 6666
@@ -150,7 +150,9 @@ def main():
             pygame.mixer.music.load('./music/pinukim.mp3')
             pygame.mixer.music.play()
             screen.fill(Color(0, 0, 0))
-            screen.blit(pics.gameOverPika, (screen.get_rect().center[0] - 250, screen.get_rect().center[1] - 200))
+            centerX = screen.get_rect().center[0]
+            centerY = screen.get_rect().center[1]
+            screen.blit(pics.gameOverPika, (centerX - centerX * 0.5, centerY - centerY * 0.5))
             display.update()
             time.sleep(6)
             client.stop()
@@ -163,7 +165,9 @@ def main():
             pygame.mixer.music.load('./music/lohevanti.mp3')
             pygame.mixer.music.play()
             screen.fill(Color(0, 0, 0))
-            screen.blit(pics.gameOverPika, (screen.get_rect().center[0] - 250, screen.get_rect().center[1] - 200))
+            centerX = screen.get_rect().center[0]
+            centerY = screen.get_rect().center[1]
+            screen.blit(pics.gameOverPika, (centerX - centerX * 0.5, centerY - centerY * 0.5))
             display.update()
             time.sleep(2)
             client.stop()
@@ -172,8 +176,12 @@ def main():
 
         exit(0)
 
-    b = Rect(432, 7, 70, 40)
-    button = create_button(b.x + 530, b.y, 100, 40, 'Quit Game!', stop_Game)
+    b = screen.get_rect()
+    toprightX = b.topright[0]
+    toprightY = b.topright[1]
+    button = create_button((toprightX - toprightX * 0.15), toprightY, 100, 40,
+                           'Quit Game!',
+                           stop_Game)
 
     radius = 15
     g = DiGraph()
@@ -255,8 +263,8 @@ def main():
         screen.fill(Color(0, 0, 0))
         WIDTH = screen.get_width()
         HEIGHT = screen.get_height()
-        pics.rescaleBG(WIDTH,HEIGHT)
-        bg=pics.background_images[0]
+        pics.rescaleBG(WIDTH, HEIGHT)
+        bg = pics.background_images[0]
         screen.blit(bg, (0, 0))
         # time
         timeleft = Decimal(client.time_to_end()) / 1000
@@ -321,6 +329,12 @@ def main():
             i += 1
 
         # update screen changes
+        b = screen.get_rect()
+        toprightX = b.topright[0]
+        toprightY = b.topright[1]
+        button = create_button((toprightX - toprightX * 0.1), toprightY, 100, 40,
+                               'Quit Game!',
+                               stop_Game)
         draw_button(button, screen)
         display.update()
 

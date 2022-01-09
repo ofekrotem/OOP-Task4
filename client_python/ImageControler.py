@@ -71,8 +71,6 @@ class ImageControler:
         mistyIM = pygame.transform.scale(mistyIM, (40, 80))
         self.agentsImages[2] = mistyIM
 
-
     def rescaleBG(self, w, h):
-        b0 = pygame.image.load(os.path.join('./pics_for_game', 'background.jpg'))
-        b0 = pygame.transform.scale(b0, (w, h))
-        self.background_images[0] = b0
+        self.background_images[0] = pygame.transform.scale(self.background_images[0], (w, h))
+        self.gameOverPika = pygame.transform.scale(self.gameOverPika, (w/2, h/2))
