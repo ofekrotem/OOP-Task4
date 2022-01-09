@@ -41,7 +41,6 @@ def main():
     pygame.mixer.music.play()
     FONT = pygame.font.SysFont('Arial', 20, bold=True)
     # load the json string into SimpleNamespace Object
-
     graph = json.loads(
         graph_json, object_hook=lambda json_dict: SimpleNamespace(**json_dict))
 
@@ -278,13 +277,6 @@ def main():
         rect = moveslabel.get_rect(center=(300, 10))
         screen.blit(moveslabel, rect)
 
-        # # stop game button
-        # if 432 <= mouse[0] <= 432 + 140 and 7 <= mouse[1] <= 30:
-        #     pygame.draw.rect(screen, (255, 255, 255), [432, 7, 120, 30])
-        #     screen.blit(stop, (400 + 50, 10))
-        # else:
-        #     # superimposing the text onto our button
-        #     screen.blit(stop, (400 + 50, 10))
         # draw nodes
         for n in graph.Nodes:
             x = my_scale(n.pos.x, x=True)

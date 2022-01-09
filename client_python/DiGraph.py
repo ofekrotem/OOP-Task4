@@ -164,7 +164,7 @@ class DiGraph(GraphInterface):
         e = Edge(self.nodes.get(id1), self.nodes.get(id2), weight)
         s = str(id1) + "," + str(id2)
         if s in self.allEdges:
-            if weight == self.allEdges.get(s):
+            if weight == self.allEdges.get(s).get_weight():
                 return False
             else:
                 self.allEdges.update({s: weight})

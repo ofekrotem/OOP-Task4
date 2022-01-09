@@ -20,8 +20,11 @@ class Client:
         self.soc.connect((ip, port))
 
     def __send_message(self, msg):
-        self.soc.send((msg + "\n").encode())
-        return self.soc.recv(MSGLEN).decode().strip()
+        try:
+            self.soc.send((msg + "\n").encode())
+            return self.soc.recv(MSGLEN).decode().strip()
+        except:
+            return ''
 
     def get_agents(self):
         """
